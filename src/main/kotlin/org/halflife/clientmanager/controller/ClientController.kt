@@ -3,25 +3,36 @@ package org.halflife.clientmanager.controller
 import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.ClientService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/clients")
+@RequestMapping("/client")
 class ClientController(
     private val clientService: ClientService
 ) {
 
-    @GetMapping("/all")
-    fun getClients() : List<ClientResponse> = clientService.findAll()
-        .map { it.toResponse() }
+    @GetMapping("/details")
+    fun getClientDetails(authentication: Authentication): ResponseEntity<ClientResponse> {
+        val email = (authentication.principal as UserDetails).username
+        val client = clientService.getClientDetails(email)
+        return if (client != null) {
+            ResponseEntity.ok().body(client.toResponse())
+        } else
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()    }
 
-    private fun Client.toResponse() : ClientResponse =
+    private fun Client.toResponse(): ClientResponse =
         ClientResponse(
-            id = this.id,
+            email = this.email,
             firstName = this.firstName,
             lastName = this.lastName,
-            email = this.email
+            gender = this.gender,
+            job = this.job,
+            position = this.position
         )
 }

@@ -2,15 +2,17 @@ package org.halflife.clientmanager.service
 
 import org.halflife.clientmanager.dto.request.LoginRequest
 import org.halflife.clientmanager.dto.response.LoginResponse
-import org.halflife.clientmanager.model.User
+import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.repository.RefreshTokenRepository
-import org.halflife.clientmanager.repository.UserRepository
+import org.halflife.clientmanager.repository.ClientRepository
 import org.halflife.clientmanager.security.CustomUserDetailsService
 import org.halflife.clientmanager.security.JwtProperties
 import org.halflife.clientmanager.security.JwtService
+import org.halflife.clientmanager.util.GenderDetection
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.Date
 
@@ -21,7 +23,9 @@ class AuthenticationService(
     private val jwtService: JwtService,
     private val jwtProperties: JwtProperties,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val userRepository: UserRepository
+    private val clientRepository: ClientRepository,
+    private val encoder: PasswordEncoder,
+    private val genderDetection: GenderDetection
 ) {
     fun login(loginRequest: LoginRequest): LoginResponse {
         authManager.authenticate(
@@ -37,20 +41,25 @@ class AuthenticationService(
 
         refreshTokenRepository.save(refreshToken, user)
 
-
         return LoginResponse(
             accessToken = accessToken,
             refreshToken = refreshToken
         )
     }
 
-    fun register(user: User): User? {
-        val found = userRepository.findByEmail(user.email)
+    fun register(client: Client): Client? {
+        val found = clientRepository.findByEmail(client.email)
 
-        return if (found == null) {
-            userRepository.save(user)
-            user
-        } else null
+        if (found != null) {
+            return null
+        }
+
+        if(client.gender.isNullOrEmpty()) {
+            client.gender = detectGender(client.firstName)
+        }
+
+        client.password = encoder.encode(client.password)
+        return clientRepository.save(client)
     }
 
     fun refreshAccessToken(token: String): String? {
@@ -65,6 +74,16 @@ class AuthenticationService(
             else
                 null
         }
+    }
+
+    private fun detectGender(firstName: String): String {
+        var gender = "Undetected"
+        val firstNameResponse = genderDetection.getGender(firstName)
+        if ((firstNameResponse?.probability ?: 0.0) >= 0.8) {
+            gender = firstNameResponse?.gender ?: "Undetected"
+        }
+
+        return gender
     }
 
     private fun generateAccessToken(user: UserDetails) = jwtService.generateToken(

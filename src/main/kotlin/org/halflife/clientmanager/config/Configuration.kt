@@ -1,6 +1,6 @@
 package org.halflife.clientmanager.config
 
-import org.halflife.clientmanager.repository.UserRepository
+import org.halflife.clientmanager.repository.ClientRepository
 import org.halflife.clientmanager.security.CustomUserDetailsService
 import org.halflife.clientmanager.security.JwtProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -13,23 +13,27 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.web.client.RestTemplate
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties::class)
 class Configuration {
 
     @Bean
-    fun userDetailsService(userRepository: UserRepository): UserDetailsService =
-        CustomUserDetailsService(userRepository)
+    fun userDetailsService(clientRepository: ClientRepository): UserDetailsService =
+        CustomUserDetailsService(clientRepository)
 
     @Bean
     fun encoder(): PasswordEncoder = BCryptPasswordEncoder();
 
     @Bean
-    fun authenticationProvider(userRepository: UserRepository): AuthenticationProvider =
+    fun restTemplate(): RestTemplate = RestTemplate();
+
+    @Bean
+    fun authenticationProvider(clientRepository: ClientRepository): AuthenticationProvider =
         DaoAuthenticationProvider()
             .also {
-                it.setUserDetailsService(userDetailsService(userRepository))
+                it.setUserDetailsService(userDetailsService(clientRepository))
                 it.setPasswordEncoder(encoder())
             }
 

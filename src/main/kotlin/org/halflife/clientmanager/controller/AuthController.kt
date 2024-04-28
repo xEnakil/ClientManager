@@ -2,12 +2,12 @@ package org.halflife.clientmanager.controller
 
 import org.halflife.clientmanager.dto.request.LoginRequest
 import org.halflife.clientmanager.dto.request.RefreshTokenRequest
-import org.halflife.clientmanager.dto.request.UserRequest
+import org.halflife.clientmanager.dto.request.ClientRequest
 import org.halflife.clientmanager.dto.response.LoginResponse
 import org.halflife.clientmanager.dto.response.TokenResponse
-import org.halflife.clientmanager.dto.response.UserResponse
+import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.model.Role
-import org.halflife.clientmanager.model.User
+import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.AuthenticationService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,9 +28,9 @@ class AuthController(
         authenticationService.login(loginRequest)
 
     @PostMapping("/register")
-    fun register(@RequestBody userRequest: UserRequest): UserResponse =
+    fun register(@RequestBody clientRequest: ClientRequest): ClientResponse =
         authenticationService.register(
-            user = userRequest.toModel()
+            client = clientRequest.toModel()
         )?.toResponse()
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create user")
 
@@ -47,17 +47,23 @@ class AuthController(
             token = this
         )
 
-    private fun UserRequest.toModel(): User =
-        User(
+    private fun ClientRequest.toModel(): Client =
+        Client(
             id = UUID.randomUUID(),
             email = this.email,
             password = this.password,
+            firstName = this.firstName,
+            lastName = this.lastName,
             role = Role.USER
         )
 
-    private fun User.toResponse(): UserResponse =
-        UserResponse(
-            uuid = this.id,
-            email = this.email
+    private fun Client.toResponse(): ClientResponse =
+        ClientResponse(
+            email = this.email,
+            firstName = this.firstName,
+            lastName = this.lastName,
+            gender = this.gender,
+            job = this.job,
+            position = this.position
         )
 }

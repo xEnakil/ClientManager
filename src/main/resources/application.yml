@@ -1,6 +1,21 @@
 spring:
   application:
     name: ClientManager
+
+  h2:
+    console:
+      enabled: true
+      path: /database
+
+  datasource:
+    url: jdbc:h2:file:./data/database;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
 jwt:
   key: ${JWT_KEY}
   access-token-expiration: 2400000

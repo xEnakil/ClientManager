@@ -1,20 +1,20 @@
 package org.halflife.clientmanager.security
 
-import org.halflife.clientmanager.repository.UserRepository
+import org.halflife.clientmanager.repository.ClientRepository
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
-typealias ApplicationUser = org.halflife.clientmanager.model.User
+typealias ApplicationUser = org.halflife.clientmanager.model.Client
 
 @Service
 class CustomUserDetailsService(
-    private val userRepository: UserRepository
+    private val clientRepository: ClientRepository
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails =
-        userRepository.findByEmail(username)
+        clientRepository.findByEmail(username)
             ?.mapToUserDetails()
             ?: throw UsernameNotFoundException("User not found")
 
