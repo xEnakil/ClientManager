@@ -43,12 +43,6 @@ class JwtService(
             .expiration
             .before(Date(System.currentTimeMillis()))
 
-    fun isValid(token: String, userDetails: UserDetails): Boolean {
-        val email = extractEmail(token)
-
-        return userDetails.username == email && !isExpired(token)
-    }
-
     fun validateJwtToken(authToken: String): Boolean{
         try{
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(authToken)
@@ -75,5 +69,12 @@ class JwtService(
         return parser
             .parseSignedClaims(token)
             .payload
+    }
+
+    //Old Validation
+    fun isValid(token: String, userDetails: UserDetails): Boolean {
+        val email = extractEmail(token)
+
+        return userDetails.username == email && !isExpired(token)
     }
 }
