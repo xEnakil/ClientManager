@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: ClientManager
+jwt:
+  key: ${JWT_KEY}
+  access-token-expiration: 2400000
+  refresh-token-expiration: 48000000
