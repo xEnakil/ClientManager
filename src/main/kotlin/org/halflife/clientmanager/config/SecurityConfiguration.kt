@@ -25,7 +25,7 @@ class SecurityConfiguration(
     ): DefaultSecurityFilterChain =
         http
             .csrf { it.disable() }
-            .exceptionHandling {it.authenticationEntryPoint(customAuthenticationEntryPoint)}
+//            .exceptionHandling {it.authenticationEntryPoint(customAuthenticationEntryPoint)}
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/auth/**").permitAll()

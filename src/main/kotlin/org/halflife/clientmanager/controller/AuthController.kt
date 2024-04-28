@@ -49,12 +49,14 @@ class AuthController(
 
     private fun ClientRequest.toModel(): Client =
         Client(
-            id = UUID.randomUUID(),
             email = this.email,
             password = this.password,
             firstName = this.firstName,
             lastName = this.lastName,
-            role = Role.USER
+            gender = this.gender,
+            role = Role.USER,
+            job = this.job,
+            position = this.position
         )
 
     private fun Client.toResponse(): ClientResponse =

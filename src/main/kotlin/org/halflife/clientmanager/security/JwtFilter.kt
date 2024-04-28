@@ -55,9 +55,9 @@ class JwtFilter  (
         jwtService.extractEmail(token)?.let { email ->
             logger.info("Email extracted: $email")
             if (SecurityContextHolder.getContext().authentication == null) {
-                userDetailsService.loadUserByUsername(email)?.let { userDetails ->
+                userDetailsService.loadUserByUsername(email).let { userDetails ->
                     logger.info("User details loaded: $userDetails")
-                    if (jwtService.isValid(token, userDetails)) {
+                    if (jwtService.validateJwtToken(token)) {
                         logger.info("JWT is valid, updating security context.")
                         updateContext(userDetails, request)
                     } else {

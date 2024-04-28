@@ -2,10 +2,12 @@ package org.halflife.clientmanager.security
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.MalformedJwtException
 import org.springframework.stereotype.Service
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.userdetails.UserDetails
+import java.security.SignatureException
 import java.util.Date
 import java.util.logging.Logger
 
@@ -45,6 +47,24 @@ class JwtService(
         val email = extractEmail(token)
 
         return userDetails.username == email && !isExpired(token)
+    }
+
+    fun validateJwtToken(authToken: String): Boolean{
+        try{
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(authToken)
+            return true;
+        }catch (e: SignatureException){
+            val msg = e.message
+            println("Invalid JWT signature: $msg" )
+        } catch (e: MalformedJwtException){
+            val msg = e.message
+            println("Invalid JWT token: $msg")
+
+        }catch (e: IllegalArgumentException){
+            val msg = e.message
+            println("JWT claims string is empty: $msg")
+        }
+        return false;
     }
 
     private fun getAllClaims(token: String): Claims {
