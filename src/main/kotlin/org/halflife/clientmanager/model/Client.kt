@@ -20,11 +20,11 @@ import java.util.UUID
     val id : UUID = UUID.randomUUID(),
     val email : String,
     var password : String,
-    val firstName : String,
-    val lastName : String,
+    var firstName : String,
+    var lastName : String,
     val role: Role,
-    val job: String? = null,
-    val position: String? = null,
+    var job: String? = null,
+    var position: String? = null,
     var gender: String? = null,
 )
 
