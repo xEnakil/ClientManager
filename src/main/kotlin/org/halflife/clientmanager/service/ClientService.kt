@@ -18,7 +18,7 @@ class ClientService(
 
     fun updateClientDetails(email: String, updatedClient: ClientUpdateRequest): Client {
         val client = getClientDetails(email)
-            ?: throw UserNotFoundException("Client with Email $email not found.")
+            ?: throw UserNotFoundException(email)
         if (email == client.email) {
             updatedClient.firstName?.let { client.firstName = it }
             updatedClient.lastName?.let { client.lastName = it }

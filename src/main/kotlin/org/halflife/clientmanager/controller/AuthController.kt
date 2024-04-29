@@ -11,6 +11,7 @@ import org.halflife.clientmanager.model.Role
 import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.AuthenticationService
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,16 +27,16 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequest): LoginResponse =
-        authenticationService.login(loginRequest)
+    fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> =
+        ResponseEntity.ok().body(authenticationService.login(loginRequest))
 
     @PostMapping("/register")
-    fun register(@RequestBody clientRequest: ClientRequest): ClientResponse {
+    fun register(@RequestBody clientRequest: ClientRequest): ResponseEntity<ClientResponse> {
         val client = clientMapper.toModel(clientRequest)
         val registeringClient = authenticationService.register(client)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to register")
         val clientResponse = clientMapper.toResponse(registeringClient)
-    return clientResponse
+    return ResponseEntity.ok().body(clientResponse)
     }
 
     @PostMapping("/refresh-token")

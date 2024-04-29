@@ -54,7 +54,7 @@ class AdminService(
 
     fun removeClient(id: UUID) {
         if (!clientRepository.existsById(id)) {
-            throw UserNotFoundException("Client with ID $id not found.")
+            throw UserNotFoundException(id.toString());
         }
         clientRepository.deleteById(id)
     }
