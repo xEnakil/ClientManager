@@ -6,6 +6,7 @@ import org.halflife.clientmanager.dto.request.ClientRequest
 import org.halflife.clientmanager.dto.response.LoginResponse
 import org.halflife.clientmanager.dto.response.TokenResponse
 import org.halflife.clientmanager.dto.response.ClientResponse
+import org.halflife.clientmanager.mapper.ClientMapper
 import org.halflife.clientmanager.model.Role
 import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.AuthenticationService
@@ -20,7 +21,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/auth")
 class AuthController(
-    private val authenticationService: AuthenticationService
+    private val authenticationService: AuthenticationService,
+    private val clientMapper: ClientMapper
 ) {
 
     @PostMapping("/login")
@@ -28,11 +30,13 @@ class AuthController(
         authenticationService.login(loginRequest)
 
     @PostMapping("/register")
-    fun register(@RequestBody clientRequest: ClientRequest): ClientResponse =
-        authenticationService.register(
-            client = clientRequest.toModel()
-        )?.toResponse()
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create user")
+    fun register(@RequestBody clientRequest: ClientRequest): ClientResponse {
+        val client = clientMapper.toModel(clientRequest)
+        val registeringClient = authenticationService.register(client)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to register")
+        val clientResponse = clientMapper.toResponse(registeringClient)
+    return clientResponse
+    }
 
     @PostMapping("/refresh-token")
     fun refreshToken(
@@ -40,32 +44,10 @@ class AuthController(
     ): TokenResponse =
         authenticationService.refreshAccessToken(tokenRequest.token)
             ?.mapToTokenResponse()
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid refresh token")
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to refresh token")
 
     private fun String.mapToTokenResponse(): TokenResponse =
         TokenResponse(
             token = this
-        )
-
-    private fun ClientRequest.toModel(): Client =
-        Client(
-            email = this.email,
-            password = this.password,
-            firstName = this.firstName,
-            lastName = this.lastName,
-            gender = this.gender,
-            role = Role.USER,
-            job = this.job,
-            position = this.position
-        )
-
-    private fun Client.toResponse(): ClientResponse =
-        ClientResponse(
-            email = this.email,
-            firstName = this.firstName,
-            lastName = this.lastName,
-            gender = this.gender,
-            job = this.job,
-            position = this.position
         )
 }

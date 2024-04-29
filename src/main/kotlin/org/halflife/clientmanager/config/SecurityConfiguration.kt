@@ -32,6 +32,7 @@ class SecurityConfiguration(
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/database/**").permitAll()
+                    .requestMatchers("/admin/testing-exception").permitAll()
                     .anyRequest().fullyAuthenticated()
             }
             .sessionManagement {

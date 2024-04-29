@@ -2,6 +2,9 @@ package org.halflife.clientmanager.service
 
 import org.halflife.clientmanager.dto.request.LoginRequest
 import org.halflife.clientmanager.dto.response.LoginResponse
+import org.halflife.clientmanager.exception.EmailAlreadyInUseException
+import org.halflife.clientmanager.exception.InvalidCredentialsException
+import org.halflife.clientmanager.exception.UserNotFoundException
 import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.repository.RefreshTokenRepository
 import org.halflife.clientmanager.repository.ClientRepository
@@ -9,12 +12,16 @@ import org.halflife.clientmanager.security.CustomUserDetailsService
 import org.halflife.clientmanager.security.JwtProperties
 import org.halflife.clientmanager.security.JwtService
 import org.halflife.clientmanager.util.GenderDetection
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.util.Date
+import kotlin.math.log
 
 @Service
 class AuthenticationService(
@@ -28,14 +35,19 @@ class AuthenticationService(
     private val genderDetection: GenderDetection
 ) {
     fun login(loginRequest: LoginRequest): LoginResponse {
-        authManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                loginRequest.email,
-                loginRequest.password
+        try {
+            authManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    loginRequest.email,
+                    loginRequest.password
+                )
             )
-        )
+        } catch (ex: AuthenticationException) {
+            throw InvalidCredentialsException()
+        }
 
         val user = userDetailsService.loadUserByUsername(loginRequest.email)
+
         val accessToken = generateAccessToken(user)
         val refreshToken = generateRefreshToken(user)
 
@@ -48,10 +60,8 @@ class AuthenticationService(
     }
 
     fun register(client: Client): Client? {
-        val found = clientRepository.findByEmail(client.email)
-
-        if (found != null) {
-            return null
+        clientRepository.findByEmail(client.email)?.let {
+            throw EmailAlreadyInUseException(client.email)
         }
 
         if(client.gender.isNullOrEmpty()) {

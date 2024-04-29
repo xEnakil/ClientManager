@@ -1,8 +1,10 @@
 package org.halflife.clientmanager.service
 
 import org.halflife.clientmanager.dto.request.ClientRequest
+import org.halflife.clientmanager.exception.EmailAlreadyInUseException
+import org.halflife.clientmanager.exception.UserNotFoundException
+import org.halflife.clientmanager.mapper.ClientMapper
 import org.halflife.clientmanager.model.Client
-import org.halflife.clientmanager.model.Role
 import org.halflife.clientmanager.repository.ClientRepository
 import org.halflife.clientmanager.specifications.ClientSpecifications
 import org.halflife.clientmanager.util.GenderDetection
@@ -18,26 +20,29 @@ class AdminService(
     private val clientRepository: ClientRepository,
     private val encoder: PasswordEncoder,
     private val genderDetection: GenderDetection,
-    private val clientSpecifications: ClientSpecifications
+    private val clientSpecifications: ClientSpecifications,
+    private val clientMapper: ClientMapper,
 ) {
 
     fun addClient(clientRequest: ClientRequest): Client? {
         clientRepository.findByEmail(clientRequest.email)?.let {
-            throw Exception("Client with email ${clientRequest.email} already exists.")
+            throw EmailAlreadyInUseException(clientRequest.email)
         }
 
         val encodedPassword = encoder.encode(clientRequest.password)
 
-        val client: Client = clientRequest.toModel()
-        client.password = encodedPassword
-        client.gender = detectGender(client.firstName)
+        val client: Client = clientMapper.toModel(clientRequest).apply {
+            this.password = encodedPassword
+            this.gender = detectGender(this.firstName)
+        }
+
         return clientRepository.save(client)
     }
 
     fun getClientById(id: String): Client? {
         val clientUuid = UUID.fromString(id)
         val client = clientRepository.findById(clientUuid).orElseThrow {
-            NoSuchElementException("Client with ID $id not found.")
+            UserNotFoundException("Client with ID $id not found.")
         }
 
         return client
@@ -48,6 +53,9 @@ class AdminService(
     }
 
     fun removeClient(id: UUID) {
+        if (!clientRepository.existsById(id)) {
+            throw UserNotFoundException("Client with ID $id not found.")
+        }
         clientRepository.deleteById(id)
     }
 
@@ -56,17 +64,6 @@ class AdminService(
         return clientRepository.findAll(spec)
     }
 
-    private fun ClientRequest.toModel(): Client =
-        Client(
-            email = this.email,
-            password = this.password,
-            firstName = this.firstName,
-            lastName = this.lastName,
-            gender = this.gender,
-            role = Role.USER,
-            job = this.job,
-            position = this.position
-        )
 
     private fun detectGender(firstName: String): String {
         var gender = "Undetected"

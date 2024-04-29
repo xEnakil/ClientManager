@@ -1,9 +1,9 @@
 package org.halflife.clientmanager.service
 
 import org.halflife.clientmanager.dto.request.ClientUpdateRequest
+import org.halflife.clientmanager.exception.UserNotFoundException
 import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.repository.ClientRepository
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.nio.file.AccessDeniedException
 
@@ -18,7 +18,7 @@ class ClientService(
 
     fun updateClientDetails(email: String, updatedClient: ClientUpdateRequest): Client {
         val client = getClientDetails(email)
-            ?: throw UsernameNotFoundException("Client with email $email not found")
+            ?: throw UserNotFoundException("Client with Email $email not found.")
         if (email == client.email) {
             updatedClient.firstName?.let { client.firstName = it }
             updatedClient.lastName?.let { client.lastName = it }
