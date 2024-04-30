@@ -13,6 +13,7 @@ import org.halflife.clientmanager.security.JwtService
 import org.halflife.clientmanager.service.AdminService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.nullable
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -140,7 +141,6 @@ class AdminControllerTest {
         assertTrue(deletedClient.isEmpty, "Client with ID $id should be deleted from the database")
     }
 
-    // Not working yet
     @Test
     @WithMockUser(username="admin", roles=["ADMIN"])
     fun `search returns clients based on query`() {
@@ -154,11 +154,10 @@ class AdminControllerTest {
         }
 
         `when`(adminService.search(searchQuery)).thenReturn(clients)
-        `when`(clientMapper.toResponse(nullable(Client::class.java))).thenAnswer { invocation ->
+        `when`(clientMapper.toResponse(any(Client::class.java) ?: Client(UUID.randomUUID(), "", "", "", "", Role.USER))).thenAnswer { invocation ->
             val client = invocation.getArgument(0) as Client
             ClientResponse(client.email, client.firstName, client.lastName, client.job, client.position, client.gender)
         }
-
         mockMvc.get("/admin/search") {
             param("search", searchQuery)
             accept = MediaType.APPLICATION_JSON

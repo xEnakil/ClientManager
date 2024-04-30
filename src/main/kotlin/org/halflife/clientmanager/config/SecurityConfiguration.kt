@@ -5,7 +5,6 @@ import org.halflife.clientmanager.security.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -26,18 +25,25 @@ class SecurityConfiguration(
     ): DefaultSecurityFilterChain =
         http
             .csrf { it.disable() }
-//            .exceptionHandling {it.authenticationEntryPoint(customAuthenticationEntryPoint)}
+            .exceptionHandling {it.authenticationEntryPoint(customAuthenticationEntryPoint)}
             .authorizeHttpRequests {
+
                 it
-                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers(
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/database/**").permitAll()
+
                     .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/database/**").permitAll()
-                    .requestMatchers("/admin/testing-exception").permitAll()
-                    .anyRequest().fullyAuthenticated()
+                    .anyRequest().authenticated()
             }
+
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+
             .userDetailsService(customUserDetailsService)
             .headers { it.frameOptions{ it.disable() } }
             .authenticationProvider(authenticationProvider)

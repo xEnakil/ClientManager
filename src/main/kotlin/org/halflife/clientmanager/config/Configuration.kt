@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties::class)
-class Configuration {
+class ServiceConfiguration {
 
     @Bean
     fun userDetailsService(clientRepository: ClientRepository): UserDetailsService =

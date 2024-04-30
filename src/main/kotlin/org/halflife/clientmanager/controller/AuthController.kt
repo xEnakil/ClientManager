@@ -1,15 +1,13 @@
 package org.halflife.clientmanager.controller
 
 import jakarta.validation.Valid
+import org.halflife.clientmanager.dto.request.ClientRequest
 import org.halflife.clientmanager.dto.request.LoginRequest
 import org.halflife.clientmanager.dto.request.RefreshTokenRequest
-import org.halflife.clientmanager.dto.request.ClientRequest
+import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.dto.response.LoginResponse
 import org.halflife.clientmanager.dto.response.TokenResponse
-import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.mapper.ClientMapper
-import org.halflife.clientmanager.model.Role
-import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.AuthenticationService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

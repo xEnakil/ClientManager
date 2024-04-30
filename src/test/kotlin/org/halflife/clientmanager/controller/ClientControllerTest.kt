@@ -66,9 +66,8 @@ class ClientControllerTest {
     @Test
     @WithMockUser(username = "test@example.com", roles = ["USER"])
     fun `update client details should return client response`() {
-        val updateRequest = ClientUpdateRequest(/* update request data */)
-        val client = Client(UUID.randomUUID(), "test@example.com", "password", "John", "Doe", Role.USER)
-        val clientResponse = ClientResponse("test@example.com", "John", "Doe", null, null, null)
+        val updateRequest = ClientUpdateRequest(firstName = "John", lastName = "Doe");      val client = Client(UUID.randomUUID(), "test@example.com", "password", "John", "Doe", Role.USER)
+        val clientResponse = ClientResponse("test@example.com", "Marx", "Doe", null, null, null)
 
         given(clientService.updateClientDetails("test@example.com", updateRequest)).willReturn(client)
         given(clientMapper.toResponse(client)).willReturn(clientResponse)
@@ -80,7 +79,7 @@ class ClientControllerTest {
         }.andExpect {
             status { isOk() }
             content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.email") { value("test@example.com") }
+            jsonPath("$.firstName") { value("Marx") }
         }
     }
 }

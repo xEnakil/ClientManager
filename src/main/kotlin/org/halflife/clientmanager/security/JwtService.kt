@@ -3,13 +3,11 @@ package org.halflife.clientmanager.security
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
-import org.springframework.stereotype.Service
 import io.jsonwebtoken.security.Keys
-import org.slf4j.LoggerFactory
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.stereotype.Service
 import java.security.SignatureException
 import java.util.Date
-import java.util.logging.Logger
 
 @Service
 class JwtService(
