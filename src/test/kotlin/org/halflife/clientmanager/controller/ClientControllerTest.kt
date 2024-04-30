@@ -36,7 +36,6 @@ class ClientControllerTest {
     @MockBean
     private lateinit var clientService: ClientService
 
-
     @MockBean
     private lateinit var customUserDetailsService: CustomUserDetailsService
 

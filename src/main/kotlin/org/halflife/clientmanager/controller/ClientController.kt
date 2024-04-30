@@ -1,9 +1,9 @@
 package org.halflife.clientmanager.controller
 
+import jakarta.validation.Valid
 import org.halflife.clientmanager.dto.request.ClientUpdateRequest
 import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.mapper.ClientMapper
-import org.halflife.clientmanager.model.Client
 import org.halflife.clientmanager.service.ClientService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -33,7 +33,7 @@ class ClientController(
     }
 
     @PatchMapping("/update")
-    fun updateClientDetails(@RequestBody updateRequest: ClientUpdateRequest ,authentication: Authentication): ResponseEntity<ClientResponse> {
+    fun updateClientDetails(@Valid @RequestBody updateRequest: ClientUpdateRequest ,authentication: Authentication): ResponseEntity<ClientResponse> {
         val email = (authentication.principal as UserDetails).username
         return ResponseEntity.ok().body(clientMapper.toResponse(clientService.updateClientDetails(email, updateRequest)))
     }

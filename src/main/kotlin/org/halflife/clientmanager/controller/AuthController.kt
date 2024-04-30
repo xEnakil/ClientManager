@@ -1,5 +1,6 @@
 package org.halflife.clientmanager.controller
 
+import jakarta.validation.Valid
 import org.halflife.clientmanager.dto.request.LoginRequest
 import org.halflife.clientmanager.dto.request.RefreshTokenRequest
 import org.halflife.clientmanager.dto.request.ClientRequest
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
 
 @RestController
 @RequestMapping("/auth")
@@ -31,7 +31,7 @@ class AuthController(
         ResponseEntity.ok().body(authenticationService.login(loginRequest))
 
     @PostMapping("/register")
-    fun register(@RequestBody clientRequest: ClientRequest): ResponseEntity<ClientResponse> {
+    fun register(@Valid @RequestBody clientRequest: ClientRequest): ResponseEntity<ClientResponse> {
         val client = clientMapper.toModel(clientRequest)
         val registeringClient = authenticationService.register(client)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to register")

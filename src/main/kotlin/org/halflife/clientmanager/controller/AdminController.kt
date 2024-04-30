@@ -1,5 +1,6 @@
 package org.halflife.clientmanager.controller
 
+import jakarta.validation.Valid
 import org.halflife.clientmanager.dto.request.ClientRequest
 import org.halflife.clientmanager.dto.response.ClientResponse
 import org.halflife.clientmanager.dto.response.FullClientResponse
@@ -29,7 +30,7 @@ class AdminController(
 
     @PostMapping("/clients")
     @PreAuthorize("hasRole('ADMIN')")
-    fun addClient(@RequestBody clientRequest: ClientRequest) : ResponseEntity<ClientResponse> {
+    fun addClient(@Valid @RequestBody clientRequest: ClientRequest) : ResponseEntity<ClientResponse> {
         return ResponseEntity.ok(adminService.addClient(clientRequest)?.let { clientMapper.toResponse(it) })
     }
 

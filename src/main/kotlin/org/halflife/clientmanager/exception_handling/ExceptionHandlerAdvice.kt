@@ -6,11 +6,29 @@ import org.halflife.clientmanager.exception.InvalidCredentialsException
 import org.halflife.clientmanager.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
 @ControllerAdvice
 class ExceptionHandlerAdvice {
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+        val errors = e.bindingResult.allErrors.map { error ->
+            val fieldName = (error as FieldError).field
+            "$fieldName: ${error.defaultMessage}"
+        }.joinToString(", ")
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = HttpStatus.BAD_REQUEST.name,
+                message = "Validation error: $errors"
+            ))
+    }
 
     @ExceptionHandler(EmailAlreadyInUseException::class)
     fun handleEmailAlreadyInUseException(e: EmailAlreadyInUseException): ResponseEntity<ErrorResponse> {
