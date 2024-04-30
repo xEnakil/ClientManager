@@ -1,6 +1,7 @@
 package org.halflife.clientmanager.exception_handling
 
 import org.halflife.clientmanager.dto.response.ErrorResponse
+import org.halflife.clientmanager.exception.DeleteAdminException
 import org.halflife.clientmanager.exception.EmailAlreadyInUseException
 import org.halflife.clientmanager.exception.InvalidCredentialsException
 import org.halflife.clientmanager.exception.UserNotFoundException
@@ -79,15 +80,27 @@ class ExceptionHandlerAdvice {
             )
     }
 
-//
-//    @ExceptionHandler(Exception::class)
-//    fun handleGeneralException(e: Exception): ResponseEntity<ErrorResponse> {
-//        return ResponseEntity
-//            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-//            .body(ErrorResponse(
-//                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-//                error = HttpStatus.INTERNAL_SERVER_ERROR.name,
-//                message = "An unexpected error occurred.")
-//            )
-//    }
+    @ExceptionHandler(DeleteAdminException::class)
+    fun handleDeleteAdminException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+
+        return ResponseEntity.
+        status(HttpStatus.I_AM_A_TEAPOT)
+            .body(ErrorResponse(
+                status = HttpStatus.I_AM_A_TEAPOT.value(),
+                error = HttpStatus.I_AM_A_TEAPOT.name,
+                message = ex.message),
+            )
+    }
+
+
+    @ExceptionHandler(Exception::class)
+    fun handleGeneralException(e: Exception): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                error = HttpStatus.INTERNAL_SERVER_ERROR.name,
+                message = "An unexpected error occurred.")
+            )
+    }
 }

@@ -1,6 +1,7 @@
 package org.halflife.clientmanager.service
 
 import org.halflife.clientmanager.dto.request.ClientRequest
+import org.halflife.clientmanager.exception.DeleteAdminException
 import org.halflife.clientmanager.exception.EmailAlreadyInUseException
 import org.halflife.clientmanager.exception.UserNotFoundException
 import org.halflife.clientmanager.mapper.ClientMapper
@@ -11,6 +12,8 @@ import org.halflife.clientmanager.util.GenderDetection
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -53,10 +56,14 @@ class AdminService(
     }
 
     fun removeClient(id: UUID) {
-        if (!clientRepository.existsById(id)) {
-            throw UserNotFoundException(id.toString());
+        val auth = SecurityContextHolder.getContext().authentication
+        val currentUserEmail = (auth.principal as UserDetails).username
+
+        val client = clientRepository.findById(id).orElse(null)
+
+        if (client != null && client.email == currentUserEmail) {
+            throw DeleteAdminException("Are you serious right know ? You going to really try to delete yourself ? 0_0")
         }
-        clientRepository.deleteById(id)
     }
 
     fun search(string: String) : List<Client> {

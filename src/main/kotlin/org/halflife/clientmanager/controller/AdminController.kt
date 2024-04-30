@@ -3,12 +3,15 @@ package org.halflife.clientmanager.controller
 import jakarta.validation.Valid
 import org.halflife.clientmanager.dto.request.ClientRequest
 import org.halflife.clientmanager.dto.response.ClientResponse
+import org.halflife.clientmanager.dto.response.ErrorResponse
 import org.halflife.clientmanager.dto.response.FullClientResponse
+import org.halflife.clientmanager.exception.DeleteAdminException
 import org.halflife.clientmanager.mapper.ClientMapper
 import org.halflife.clientmanager.service.AdminService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -55,10 +58,19 @@ class AdminController(
 
     @DeleteMapping("/clients/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    fun deleteClient(@PathVariable id: UUID): ResponseEntity<Map<String, String>> {
-        adminService.removeClient(id)
-        val response = mapOf("message" to "Client with $id has been deleted")
-        return ResponseEntity.ok().body(response)
+    fun deleteClient(@PathVariable id: UUID): ResponseEntity<Any> {
+        try {
+            adminService.removeClient(id)
+            val response = mapOf("message" to "Client with $id has been deleted")
+            return ResponseEntity.ok().body(response)
+        } catch (ex: DeleteAdminException) {
+            val errorResponse = ErrorResponse(
+                status = HttpStatus.I_AM_A_TEAPOT.value(),
+                error = HttpStatus.I_AM_A_TEAPOT.name,
+                message = ex.message
+            )
+            return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(errorResponse)
+        }
     }
 
     @GetMapping("/search")

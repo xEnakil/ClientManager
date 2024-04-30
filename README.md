@@ -116,3 +116,55 @@ To install and run the Client Manager Application locally, follow these steps:
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 
+---
+
+# Responses
+
+### Trying to access with wrong JWT or accessing the methods without Role access
+
+![Unauthorized Error](assets/Unathorized.png)
+
+### Trying to search client that not exist
+
+![Client Not Found](assets/Client%20with%20id%20not%20found.png)
+
+### Deleting the client
+
+![Deleting the client](assets/Deleting%20client.png)
+
+### Invalid Email
+
+![Invalid Email](assets/Invalid%20Email.png)
+
+### Register
+
+![Register](assets/Register%20Response%20with%20Body.png)
+
+### Trying to register with same email
+
+![Register](assets/Trying%20to%20register%20with%20same%20email.png)
+
+### Validation error with message
+
+![Validation](assets/Lower%20than%208%20Password.png)
+
+### Getting all clients with admin access
+
+![Validation](assets/Getting%20all%20clients%20with%20admin%20access.png)
+
+# Postman import: 
+
+### Swagger exist but if you're Postman enjoyer ;) then go ahead import the json!
+[Download JSON Data](assets/ClientManager.postman_collection.json)
+
+
+
+
+
+
+
+
+
+
+
+
