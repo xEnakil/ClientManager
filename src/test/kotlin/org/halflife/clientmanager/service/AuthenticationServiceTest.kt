@@ -76,34 +76,28 @@ class AuthenticationServiceTest{
         verify(exactly = 1) { clientRepository.save(any()) }
     }
 
-    //Not working yet
     @Test
     fun `refreshAccessToken should return new access token if refresh token is valid`() {
         val email = "user@example.com"
         val token = "valid_refresh_token"
-        val userDetails = mockk<UserDetails>()
-        val newUserDetails = mockk<UserDetails>(relaxed = true)
+        val userDetails = mockk<UserDetails>(relaxed = true)
         val newAccessToken = "new_access_token"
-        val accessTokenExpiration = jwtProperties.accessTokenExpiration
-        val date = accessTokenExpiration.toDate()
+        val expirationTime = 60000L // 1 minute in milliseconds
 
+        every { jwtProperties.accessTokenExpiration } returns expirationTime
 
-
+        every { userDetails.username } returns email
         every { jwtService.extractEmail(token) } returns email
         every { userDetailsService.loadUserByUsername(email) } returns userDetails
-        every { refreshTokenRepository.findUserDetailsByToken(token) } returns newUserDetails
+        every { refreshTokenRepository.findUserDetailsByToken(token) } returns userDetails
         every { jwtService.isExpired(token) } returns false
-        every { jwtService.generateToken(userDetails, date) } returns newAccessToken
+        every { jwtService.generateToken(userDetails, ofType(Date::class)) } returns newAccessToken
 
         val result = authenticationService.refreshAccessToken(token)
 
         assertNotNull(result)
         assertEquals(newAccessToken, result)
-        verify { jwtService.generateToken(userDetails, date) }
-    }
-
-    private fun Long.toDate(): Date {
-        return Date.from(Instant.ofEpochMilli(this))
+        verify { jwtService.generateToken(userDetails, ofType(Date::class)) }
     }
 
     @Test
